@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Inject,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -10,29 +11,42 @@ import { User } from '../../../typeorm/';
 import { LoginUserParams } from '../../types';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../../../users/services/users/users.service';
+import { comparePasswords } from 'src/utils/bcrypt';
 // service class is responsible for all business logic
 // like calling APIs
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User) private userRepository: Repository<User>, 
+    @Inject('USER_SERVICE') private userService: UsersService,
     private jwtService: JwtService,
-      ) {}
-    
-  async loginUser(userDetails: LoginUserParams) {
+  ) {}
+
+  async signInUser(userDetails: LoginUserParams) {
     const { email, password } = userDetails;
-
     // Try to find a user with the given username
-    const user = await this.userRepository.findOneBy({ email });
-    if (user?.password !== password) {
-        throw new UnauthorizedException();
-      }
-    const payload = { sub: user.email, email: user.email };
-    return this.jwtService.signAsync(payload)
-
+    try {
+      const user = await this.userService.loginUser({ email, password });
+      const payload = { sub: user.email, email: user.email };
+      return this.jwtService.signAsync(payload);
+    } catch (error) {
+      return { message: 'Internal Server Error', status: false };
+    }
   }
 
-  validateUser(email: string, password: string){
+  async validateUser(email: string, password: string) {
+    const userDB = await this.userService.findUserByEmail(email);
 
+    if (userDB) {
+      const matched = comparePasswords(password, userDB.password);
+      if (matched) {
+        console.log('USER FOUND!');
+        return userDB;
+      } else {
+        console.log('Passwords dont match!');
+        return null;
+      }
+    }
+    console.log('User validation failed!');
+    return null;
   }
 }

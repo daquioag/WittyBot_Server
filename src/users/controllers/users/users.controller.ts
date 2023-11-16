@@ -9,6 +9,7 @@ import {
 import { CreateUserDto } from '../../dtos/CreateUser.dto';
 import { UsersService } from '../../services/users/users.service';
 import { LoginUserDto } from 'src/users/dtos/LoginUser.dto';
+import { Public } from 'src/auth/auth.guard';
 // controllers are for extracing query parameters
 // are for validating request bodies.
 @Controller('users')
@@ -41,6 +42,7 @@ export class UsersController {
   }
 
   @Post('create')
+  @Public()
   @UsePipes(ValidationPipe)
   async createUser(@Body() CreateUserDto: CreateUserDto) {
     try{

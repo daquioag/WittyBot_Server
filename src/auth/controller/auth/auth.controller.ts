@@ -4,7 +4,7 @@ import {
   UsePipes,
   Controller,
   Post,
-  Get,
+  Get, Res,
   HttpCode,
   HttpStatus, Request,
   NotFoundException,
@@ -24,7 +24,7 @@ export class AuthController {
   @UsePipes(ValidationPipe)
   async loginUser(@Body() LoginUserDto: LoginUserDto) {
     try {
-      const access_token = await this.authService.loginUser(LoginUserDto);
+      const access_token = await this.authService.signInUser(LoginUserDto);
       return { access_token, status: true }; // Return the user and status
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -40,10 +40,25 @@ export class AuthController {
     }
   }
 
+  @HttpCode(HttpStatus.OK)
+  @Post('login2')
+  @Public()
+  @UsePipes(ValidationPipe)
+  async loginUser2(@Request() req) {
+    
+  }
+
   
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
   }
+
+  @Get('logout')
+  async logout(@Res({ passthrough: true }) res) {
+    res.cookie('user_token', '', { expires: new Date(Date.now()) });
+    return {};
+  }
+
   
 }
