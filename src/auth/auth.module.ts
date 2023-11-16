@@ -9,7 +9,6 @@ import { jwtConstants } from './constants';
 import { AuthGuard } from './auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { UsersService } from 'src/users/services/users/users.service';
-import { LocalStrategy } from './utils/LocalStrategy';
 import { PassportModule } from '@nestjs/passport/dist';
 
 @Module({
@@ -36,7 +35,6 @@ import { PassportModule } from '@nestjs/passport/dist';
       provide: 'USER_SERVICE',
       useClass: UsersService,
     },
-    LocalStrategy,
     AuthService,
   ],
 })
