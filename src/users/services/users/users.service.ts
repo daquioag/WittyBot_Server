@@ -12,18 +12,6 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async loginUser(userDetails: LoginUserParams) {
-    const { email, password } = userDetails;
-
-    // Try to find a user with the given username
-    const user = await this.userRepository.findOneBy({ email });
-    if (user?.password !== password) {
-      throw new UnauthorizedException();
-    }
-    
-    return user;
-  }
-
   async createUser(userDetails: CreateUserParams) {
     const password = encodePassword(userDetails.password);
     console.log(password)

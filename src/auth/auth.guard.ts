@@ -26,9 +26,11 @@ export class AuthGuard implements CanActivate {
     ]);
 
     if (isPublic) {
+      console.log("PUBNLC)")
       // 💡 See this condition
       return true;
     }
+    console.log("not PUBNLC)")
 
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);

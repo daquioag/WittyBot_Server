@@ -21,25 +21,6 @@ export class UsersController {
     return 'Hello!';
   }
 
-  @Post('login')
-  @UsePipes(ValidationPipe)
-  async loginUser(@Body() LoginUserDto: LoginUserDto) {
-    try {
-      const user = await this.userService.loginUser(LoginUserDto);
-      return { user, status: true }; // Return the user and status
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        // Handle user not found exception
-        return { message: 'User not found', status: false };
-      } else if (error instanceof UnauthorizedException) {
-        // Handle invalid password exception
-        return { message: 'Invalid password', status: false };
-      } else {
-        // Handle other exceptions
-        return { message: 'Internal Server Error', status: false };
-      }
-    }
-  }
 
   @Post('create')
   @Public()

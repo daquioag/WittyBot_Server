@@ -10,14 +10,14 @@ import { AuthGuard } from './auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { UsersService } from 'src/users/services/users/users.service';
 import { PassportModule } from '@nestjs/passport/dist';
-
+import { JwtStrategy } from './utils/JwtStrategy';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '120s' },
+      signOptions: { expiresIn: '2h' },
     }),
     PassportModule,
   ],
@@ -35,7 +35,7 @@ import { PassportModule } from '@nestjs/passport/dist';
       provide: 'USER_SERVICE',
       useClass: UsersService,
     },
-    AuthService,
+    AuthService, JwtStrategy
   ],
 })
 export class AuthModule {}

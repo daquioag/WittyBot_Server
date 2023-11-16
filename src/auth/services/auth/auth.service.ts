@@ -21,32 +21,24 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signInUser(userDetails: LoginUserParams) {
+  async validateUser(userDetails: LoginUserParams) {
     const { email, password } = userDetails;
-    // Try to find a user with the given username
-    try {
-      const user = await this.userService.loginUser({ email, password });
-      const payload = { sub: user.email, email: user.email };
-      return this.jwtService.signAsync(payload);
-    } catch (error) {
-      return { message: 'Internal Server Error', status: false };
-    }
-  }
-
-  async validateUser(email: string, password: string) {
     const userDB = await this.userService.findUserByEmail(email);
 
     if (userDB) {
       const matched = comparePasswords(password, userDB.password);
       if (matched) {
         console.log('USER FOUND!');
-        return userDB;
+        const payload = { sub: userDB.email, email: userDB.email };
+        const token = await this.jwtService.signAsync(payload);
+        return token;
       } else {
-        console.log('Passwords dont match!');
-        return null;
+        console.log("Wrong password!")
+        throw new UnauthorizedException();
       }
     }
-    console.log('User validation failed!');
-    return null;
+    console.log("User not found!")
+    throw new NotFoundException()
   }
+  
 }
