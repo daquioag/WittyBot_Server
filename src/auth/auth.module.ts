@@ -1,0 +1,22 @@
+import { Module } from '@nestjs/common';
+import { AuthController } from './controller/auth/auth.controller';
+import { AuthService } from './services/auth/auth.service';
+// import { UsersModule } from 'src/users/users.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../typeorm';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from './constants';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    JwtModule.register({
+      global: true,
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: '120s' },
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService]
+})
+export class AuthModule {}

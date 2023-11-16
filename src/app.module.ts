@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 import entities from './typeorm';
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -10,11 +11,11 @@ import entities from './typeorm';
     host: 'localhost',
     port: 3306,
     username: 'root',
-    password: '',
-    database: 'compcom_nodemysql',
+    password: '******',
+    database: '***',
     entities,
     synchronize: true,
-  }), UsersModule],
+  }), UsersModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
