@@ -28,8 +28,11 @@ export class AuthService {
         throw new UnauthorizedException();
       }
     const payload = { sub: user.email, email: user.email };
-    return {
-    access_token: await this.jwtService.signAsync(payload),
-    };
+    return this.jwtService.signAsync(payload)
+
+  }
+
+  validateUser(email: string, password: string){
+
   }
 }

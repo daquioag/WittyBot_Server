@@ -4,11 +4,13 @@ import {
   UsePipes,
   Controller,
   Post,
+  Get,
   HttpCode,
-  HttpStatus,
+  HttpStatus, Request,
   NotFoundException,
-  UnauthorizedException,
+  UnauthorizedException, UseGuards
 } from '@nestjs/common';
+import { AuthGuard, Public } from '../../auth.guard';
 import { LoginUserDto } from 'src/users/dtos/LoginUser.dto';
 import { AuthService } from '../../services/auth/auth.service';
 // controllers are for extracing query parameters
@@ -16,12 +18,14 @@ import { AuthService } from '../../services/auth/auth.service';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @HttpCode(HttpStatus.OK)
   @Post('login')
+  @Public()
   @UsePipes(ValidationPipe)
   async loginUser(@Body() LoginUserDto: LoginUserDto) {
     try {
-      const user = await this.authService.loginUser(LoginUserDto);
-      return { user, status: true }; // Return the user and status
+      const access_token = await this.authService.loginUser(LoginUserDto);
+      return { access_token, status: true }; // Return the user and status
     } catch (error) {
       if (error instanceof NotFoundException) {
         // Handle user not found exception
@@ -34,6 +38,12 @@ export class AuthController {
         return { message: 'Internal Server Error', status: false };
       }
     }
+  }
+
+  
+  @Get('profile')
+  getProfile(@Request() req) {
+    return req.user;
   }
   
 }
