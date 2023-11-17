@@ -19,8 +19,12 @@ export type User = {
     // Add other user properties as needed
   };
 
+  export type DeleteUserParams = {
+    id:number;
+  }
+
   export type LoginUserParams = {
-    email: string;
+    username: string;
     password: string;
     // username: string;
     // apicalls: number;

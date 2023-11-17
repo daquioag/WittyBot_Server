@@ -5,9 +5,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from '../../../typeorm/';
 import { LoginUserParams } from '../../types';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../../../users/services/users/users.service';
@@ -21,15 +18,17 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoibWUiLCJ1c2VybmFtZSI6Im1lIiwiYXBpQ2FsbHMiOjAsImlhdCI6MTcwMDIxNjM3NywiZXhwIjoxNzAwMjIzNTc3fQ.YZYYqD--apfQNnmHCwZ30ztSbKJcwQF2onjMG-rYLOQ
+
   async validateUser(userDetails: LoginUserParams) {
-    const { email, password } = userDetails;
-    const userDB = await this.userService.findUserByEmail(email);
+    const { username, password } = userDetails;
+    const userDB = await this.userService.findUserByUsername(username);
 
     if (userDB) {
       const matched = comparePasswords(password, userDB.password);
       if (matched) {
         console.log('USER FOUND!');
-        const payload = { sub: userDB.email, email: userDB.email };
+        const payload = { sub: userDB.id, email: userDB.email, username: userDB.username, apiCalls : userDB.apicalls };
         const token = await this.jwtService.signAsync(payload);
         return token;
       } else {

@@ -11,8 +11,7 @@ import {
   UnauthorizedException, UseGuards
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jet-auth.guard';
-import { AuthGuard, Public } from '../../auth.guard';
-import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { Public } from '../../auth.guard';
 import { LoginUserDto } from 'src/users/dtos/LoginUser.dto';
 import { AuthService } from '../../services/auth/auth.service';
 import { Response, Request } from 'express';
@@ -25,16 +24,18 @@ export class AuthController {
   @Post('login')
   @Public()
   @UsePipes(ValidationPipe)
-  async loginUser(@Req() req: Request, @Res({ passthrough: true }) res: Response, @Body() LoginUserDto: LoginUserDto) : Promise<void>{
+  async loginUser(@Res({ passthrough: true }) res: Response, @Body() LoginUserDto: LoginUserDto) : Promise<void>{
     try {
       const access_token = await this.authService.validateUser(LoginUserDto);
+      console.log("Token from auth cotrn")
+      console.log(access_token)
+      console.log("end")
       res.header('Authorization', `Bearer ${access_token}`);
       res.cookie('access_token', access_token, {
         httpOnly: true,
         secure: false,
-        sameSite: 'lax',
-        expires: new Date(Date.now() + 1 * 24 * 60 * 1000),
-    }).send({ status: 'ok' , access_token, success: true});
+        sameSite: 'lax'
+          }).send({ status: 'ok' , access_token, success: true});
     } catch (error) {
       {
         if (error instanceof NotFoundException) {
@@ -61,15 +62,12 @@ export class AuthController {
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   getProfile(@Req() req: Request) {
-    const authToken = req.cookies;
-    // console.log(authToken)
-    // console.log(req)
     return req.user;
   }
 
   @Get('logout')
   async logout(@Res({ passthrough: true }) res) {
-    res.cookie('user_token', '', { expires: new Date(Date.now()) });
+    res.cookie('access_token', '', { expires: new Date(Date.now()) });
     return {};
   }
 

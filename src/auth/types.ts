@@ -1,7 +1,7 @@
 export type LoginUserParams = {
-    email: string;
+    username: string;
     password: string;
-    // username: string;
+    // email: string;
     // apicalls: number;
     // token?: string;
     // admin: boolean;
