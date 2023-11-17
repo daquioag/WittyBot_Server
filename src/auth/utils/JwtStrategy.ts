@@ -19,7 +19,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
 
   private static extractJWTFromCookie(req: Request): string | null {
-    console.log("SDFSDFSDF");
     if (req.cookies && req.cookies.access_token) {
       return req.cookies.access_token;
     }
@@ -28,6 +27,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any) {
     console.log('Validating user with payload:', payload);
-    return { userId: payload.sub, username: payload.username };
+    return { userId: payload.sub, email: payload.email };
   }
 }

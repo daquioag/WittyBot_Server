@@ -40,5 +40,4 @@ export class AuthService {
     console.log("User not found!")
     throw new NotFoundException()
   }
-  
 }

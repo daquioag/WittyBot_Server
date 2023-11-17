@@ -26,14 +26,15 @@ export class AuthGuard implements CanActivate {
     ]);
 
     if (isPublic) {
-      console.log("PUBNLC)")
       // 💡 See this condition
       return true;
     }
-    console.log("not PUBNLC)")
 
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    console.log(request)
+    // console.log("request")
+    const token = this.extractTokenFromCookie(request);
+    console.log(token)
     if (!token) {
       throw new UnauthorizedException();
     }
@@ -50,8 +51,18 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+  private extractTokenFromCookie(request: Request): string | undefined {
+    const cookies = request.headers.cookie;
+    if (cookies) {
+      console.log(cookies)
+      const cookieArray = cookies.split(';').map(cookie => cookie.trim());
+      const tokenCookie = cookieArray.find(cookie => cookie.startsWith('access_token='));
+      console.log(tokenCookie)
+      if (tokenCookie) {
+        return tokenCookie.split('=')[1];
+      }
+    }
+    return undefined;
   }
+  
 }

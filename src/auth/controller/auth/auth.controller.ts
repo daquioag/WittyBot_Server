@@ -25,9 +25,10 @@ export class AuthController {
   @Post('login')
   @Public()
   @UsePipes(ValidationPipe)
-  async loginUser2(@Req() req: Request, @Res({ passthrough: true }) res: Response, @Body() LoginUserDto: LoginUserDto) : Promise<void>{
+  async loginUser(@Req() req: Request, @Res({ passthrough: true }) res: Response, @Body() LoginUserDto: LoginUserDto) : Promise<void>{
     try {
       const access_token = await this.authService.validateUser(LoginUserDto);
+      res.header('Authorization', `Bearer ${access_token}`);
       res.cookie('access_token', access_token, {
         httpOnly: true,
         secure: false,
@@ -57,9 +58,12 @@ export class AuthController {
   }
 
 
-  @UseGuards(JwtAuthGuard)
   @Get('profile')
+  @UseGuards(JwtAuthGuard)
   getProfile(@Req() req: Request) {
+    const authToken = req.cookies;
+    // console.log(authToken)
+    // console.log(req)
     return req.user;
   }
 
