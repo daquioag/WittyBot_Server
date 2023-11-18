@@ -23,7 +23,7 @@ export class UsersService {
     }
 
     const newUser = this.userRepository.create({
-      ...userDetails, password
+      ...userDetails, password, 
     });
     const savedUser = await this.userRepository.save(newUser);
     console.log(savedUser); // This will include any database-generated values, like ID
@@ -43,9 +43,6 @@ export class UsersService {
   }
 
   async deleteUser(id : DeleteUserParams) {
-    console.log("HELO123")
-    console.log(id)
-    console.log(typeof id);
     const user = await this.userRepository.findOneBy( id );
 
     if (!user) {
@@ -53,6 +50,25 @@ export class UsersService {
     }
 
     return this.userRepository.remove(user);
+  }
+
+  async createDefaultUser() {
+    const defaultEmail = "admin@admin.com";
+    const existingAdmin = await this.userRepository.findOne({ where: {email: defaultEmail} });
+
+    // If an admin user already exists, no need to create a new one
+    if (existingAdmin) {
+      console.log('Admin user already exists.');
+      return existingAdmin;
+    }
+
+       this.createUser({
+      username: 'admin',
+      email: defaultEmail,
+      password: 'admin',
+      admin: true,
+    });
+
   }
 
 }
