@@ -20,7 +20,7 @@ export type User = {
   }
 
   export type LoginUserParams = {
-    username: string;
+    email: string;
     password: string;
   };
   

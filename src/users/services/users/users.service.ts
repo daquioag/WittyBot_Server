@@ -14,11 +14,10 @@ export class UsersService {
 
   async createUser(userDetails: CreateUserParams) {
     const password = encodePassword(userDetails.password);
-    const {  username, email } = userDetails;
-    const userDB = await this.userRepository.findOneBy({ username });
+    const { email } = userDetails;
     const emailDB = await this.userRepository.findOneBy({ email });
 
-    if (userDB || emailDB) {
+    if (emailDB) {
       throw new ConflictException ();
     }
 
@@ -26,12 +25,11 @@ export class UsersService {
       ...userDetails, password, 
     });
     const savedUser = await this.userRepository.save(newUser);
-    console.log(savedUser); // This will include any database-generated values, like ID
     return savedUser;
   }
 
-  async findUserByUsername(username: string) {
-    const user = await this.userRepository.findOneBy({ username });
+  async findUserByEmail(email: string) {
+    const user = await this.userRepository.findOneBy({ email });
     if (!user){
       throw new NotFoundException('User not found');
     }
@@ -52,23 +50,23 @@ export class UsersService {
     return this.userRepository.remove(user);
   }
 
-  async createDefaultUser() {
+  async createDefaultUser(): Promise<void> {
     const defaultEmail = "admin@admin.com";
-    const existingAdmin = await this.userRepository.findOne({ where: {email: defaultEmail} });
-
+    const existingAdmin = await this.userRepository.findOne({ where: { email: defaultEmail } });
+  
     // If an admin user already exists, no need to create a new one
     if (existingAdmin) {
       console.log('Admin user already exists.');
-      return existingAdmin;
+      return;
     }
-
-       this.createUser({
+  
+    // Create the admin user
+    this.createUser({
       username: 'admin',
       email: defaultEmail,
       password: 'admin',
       admin: true,
     });
-
   }
-
+  
 }

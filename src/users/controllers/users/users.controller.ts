@@ -64,10 +64,10 @@ export class UsersController {
         .send({ status: 'ok', user, success: true });
     } catch (error) {
       if (error instanceof ConflictException) {
-        console.error('User with this email / username  already exists');
+        console.error('User with this email already exists');
         res
           .status(HttpStatus.CONFLICT)
-          .send({ message: 'User with this email / username  already exists', status: false });
+          .send({ message: 'User with this email already exists', status: false });
       } else {
         console.error('Internal Server Error');
         res

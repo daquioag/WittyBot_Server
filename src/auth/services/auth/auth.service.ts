@@ -18,8 +18,8 @@ export class AuthService {
   ) {}
 
   async validateUser(userDetails: LoginUserParams) {
-    const { username, password } = userDetails;
-    const userDB = await this.userService.findUserByUsername(username);
+    const { email, password } = userDetails;
+    const userDB = await this.userService.findUserByEmail(email);
 
     if (userDB) {
       const matched = comparePasswords(password, userDB.password);
