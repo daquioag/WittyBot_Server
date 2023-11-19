@@ -11,18 +11,20 @@ import {
   ValidationPipe,
   NotFoundException,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { CreateUserDto } from '../../dtos/CreateUser.dto';
 import { UsersService } from '../../services/users/users.service';
 import { Public } from 'src/auth/auth.guard';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { DeleteUserDto } from 'src/users/dtos/DeleteUser.dto';
+import { User } from 'src/users/types';
 
 // controllers are for extracing query parameters
 // are for validating request bodies.
 @Controller('users')
 export class UsersController {
-  constructor(private userService: UsersService) {}
+  constructor(private userService: UsersService) { }
 
   @Get('getUsers')
   getUsers() {
@@ -30,23 +32,29 @@ export class UsersController {
   }
 
   @Delete('delete')
-  async deleteUser(@Res({ passthrough: true }) res: Response, @Body() DeleteUserDto: DeleteUserDto): Promise<void> {
+  async deleteUser(
+    @Res({ passthrough: true }) res: Response,
+    @Body() DeleteUserDto: DeleteUserDto,
+  ): Promise<void> {
     try {
       // await this.userService.deleteUser(DeleteUserDto);
       const deletedUser = await this.userService.deleteUser(DeleteUserDto);
-      console.log(deletedUser)
+      console.log(deletedUser);
       res.status(HttpStatus.OK).send({ status: 'ok', success: true });
     } catch (error) {
       if (error instanceof NotFoundException) {
         console.error('User not found');
-        res.status(HttpStatus.NOT_FOUND).send({ message: 'User not found', status: false });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .send({ message: 'User not found', status: false });
       } else {
         console.error('Internal Server Error:', error);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Internal Server Error', status: false });
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .send({ message: 'Internal Server Error', status: false });
       }
     }
   }
-  
 
   @HttpCode(HttpStatus.OK)
   @Post('create')
@@ -58,7 +66,6 @@ export class UsersController {
   ): Promise<void> {
     try {
       const user = await this.userService.createUser(CreateUserDto);
-      console.log(user)
       res
         .status(HttpStatus.CREATED)
         .send({ status: 'ok', user, success: true });
@@ -67,7 +74,10 @@ export class UsersController {
         console.error('User with this email already exists');
         res
           .status(HttpStatus.CONFLICT)
-          .send({ message: 'User with this email already exists', status: false });
+          .send({
+            message: 'User with this email already exists',
+            status: false,
+          });
       } else {
         console.error('Internal Server Error');
         res
@@ -75,5 +85,32 @@ export class UsersController {
           .send({ message: 'Internal Server Error', status: false });
       }
     }
+  }
+
+  @Get('getRole')
+  @HttpCode(HttpStatus.OK)
+  async getUserRole(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
+    try {
+      const user = req.user as User;
+      console.log(user.admin);
+      res.status(HttpStatus.OK).send({
+        status: 'ok',
+        admin: user.admin,
+        success: true,
+      });
+    } catch (error) {
+      console.error('Error retrieving user profile:', error);
+
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        status: 'error',
+        message: 'Internal Server Error',
+        success: false,
+      });
+
+    }
+
   }
 }

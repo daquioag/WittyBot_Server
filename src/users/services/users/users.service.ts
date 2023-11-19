@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException, UnauthorizedException, ConflictException   } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException   } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../../typeorm/';
 import { encodePassword } from 'src/utils/bcrypt';
-import { CreateUserParams, DeleteUserParams, LoginUserParams } from '../../types';
+import { CreateUserParams, DeleteUserParams, } from '../../types';
 // service class is responsible for all business logic
 // like calling APIs
 @Injectable()
@@ -54,7 +54,6 @@ export class UsersService {
     const defaultEmail = "admin@admin.com";
     const existingAdmin = await this.userRepository.findOne({ where: { email: defaultEmail } });
   
-    // If an admin user already exists, no need to create a new one
     if (existingAdmin) {
       console.log('Admin user already exists.');
       return;
@@ -68,5 +67,4 @@ export class UsersService {
       admin: true,
     });
   }
-  
 }

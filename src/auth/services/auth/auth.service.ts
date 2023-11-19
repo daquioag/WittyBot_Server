@@ -25,7 +25,7 @@ export class AuthService {
       const matched = comparePasswords(password, userDB.password);
       if (matched) {
         console.log('USER FOUND!');
-        const payload = { sub: userDB.id, email: userDB.email, username: userDB.username, apiCalls : userDB.apicalls };
+        const payload = { sub: userDB.id, email: userDB.email, username: userDB.username, apiCalls : userDB.apicalls, admin :userDB.admin };
         const token = await this.jwtService.signAsync(payload);
         return token;
       } else {

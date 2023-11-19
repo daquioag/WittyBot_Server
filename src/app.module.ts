@@ -11,7 +11,7 @@ import entities from './typeorm';
     host: 'localhost',
     port: 3306,
     username: 'root',
-    password: '-',
+    password: '-!',
     database: '-',
     entities,
     synchronize: true,

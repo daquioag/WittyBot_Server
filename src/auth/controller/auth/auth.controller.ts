@@ -15,6 +15,7 @@ import { Public } from '../../auth.guard';
 import { LoginUserDto } from 'src/users/dtos/LoginUser.dto';
 import { AuthService } from '../../services/auth/auth.service';
 import { Response, Request } from 'express';
+import { User } from 'src/users/types';
 // controllers are for extracing query parameters
 @Controller('auth')
 export class AuthController {
@@ -27,10 +28,6 @@ export class AuthController {
   async loginUser(@Res({ passthrough: true }) res: Response, @Body() LoginUserDto: LoginUserDto) : Promise<void>{
     try {
       const access_token = await this.authService.validateUser(LoginUserDto);
-      console.log("Token from auth cotrn")
-      console.log(access_token)
-      console.log("end")
-      res.header('Authorization', `Bearer ${access_token}`);
       res.cookie('access_token', access_token, {
         httpOnly: true,
         secure: false,
@@ -66,9 +63,14 @@ export class AuthController {
   }
 
   @Get('logout')
-  async logout(@Res({ passthrough: true }) res) {
-    res.cookie('access_token', '', { expires: new Date(Date.now()) });
-    return {};
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    if (req.user) {
+      const user = req.user as User
+      console.log(`Logging out of ${user.email}'s account`)
+      // Expire the cookie by setting it to an expired date
+      res.cookie('access_token', '', { expires: new Date(0) });
+    }   
+     return {message: "Logged out"};
   }
 
   
