@@ -19,6 +19,7 @@ import { Public } from 'src/auth/auth.guard';
 import { Response, Request } from 'express';
 import { DeleteUserDto } from 'src/users/dtos/DeleteUser.dto';
 import { User } from 'src/users/types';
+import { NewPasswordDto } from 'src/users/dtos/NewPassword.dto';
 
 // controllers are for extracing query parameters
 // are for validating request bodies.
@@ -37,9 +38,7 @@ export class UsersController {
     @Body() DeleteUserDto: DeleteUserDto,
   ): Promise<void> {
     try {
-      // await this.userService.deleteUser(DeleteUserDto);
-      const deletedUser = await this.userService.deleteUser(DeleteUserDto);
-      console.log(deletedUser);
+      await this.userService.deleteUser(DeleteUserDto);
       res.status(HttpStatus.OK).send({ status: 'ok', success: true });
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -109,8 +108,43 @@ export class UsersController {
         message: 'Internal Server Error',
         success: false,
       });
-
     }
-
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('reset-password')
+  @UsePipes(ValidationPipe)
+  async updatePassword(
+    @Req() req: Request,  
+    @Res({ passthrough: true }) res: Response,
+    @Body() NewPasswordDto: NewPasswordDto,
+  ): Promise<void> {
+    try {
+      const user = req.user as User;
+      const password  = NewPasswordDto.password
+      await this.userService.patchUser(user.id, NewPasswordDto);
+
+      res
+        .status(HttpStatus.OK)
+        .send({ status: 'ok', newpassword : password, message: 'Password updated successfully', success: true });
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        console.error('User does not exist');
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .send({
+            message: 'User does not exist',
+            success: false,
+            status: 'error'
+          });
+      } else {
+        console.error('Internal Server Error');
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .send({ message: 'Internal Server Error', success: false, status: 'error' });
+      }
+    }
+  }
+
+
 }

@@ -31,18 +31,25 @@ export class AuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    console.log(request)
-    const token = this.extractTokenFromCookie(request);
-    if (!token) {
+
+    const headerToken = this.extractTokenFromHeader(request);
+    if (headerToken) {
+      console.log(headerToken)
+      return this.verifyAndSetUser(request, headerToken);
+    }
+
+    // If no token in Authorization header, check cookies
+    const cookieToken = this.extractTokenFromCookie(request);
+    if (!cookieToken) {
       throw new UnauthorizedException();
     }
+    return this.verifyAndSetUser(request, cookieToken);
+  }
+  private async verifyAndSetUser(request: Request, token: string): Promise<boolean> {
     try {
-      console.log
       const payload = await this.jwtService.verifyAsync(token, {
         secret: jwtConstants.secret,
       });
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
       request['user'] = payload;
     } catch {
       throw new UnauthorizedException();
@@ -51,11 +58,13 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
+    console.log("extracting from header")
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
 
   private extractTokenFromCookie(request: Request): string | undefined {
+    console.log("extracting from cookie")
     const cookies = request.headers.cookie;
     if (cookies) {
       console.log(cookies)
@@ -66,7 +75,7 @@ export class AuthGuard implements CanActivate {
         return tokenCookie.split('=')[1];
       }
     }
-    return undefined;
+    return undefined; 
   }
   
 }

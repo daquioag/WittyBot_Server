@@ -13,6 +13,7 @@ import {
 import { JwtAuthGuard } from 'src/auth/jet-auth.guard';
 import { Public } from '../../auth.guard';
 import { LoginUserDto } from 'src/users/dtos/LoginUser.dto';
+import { ForgotPasswordDto } from 'src/users/dtos/ForgotPassword.dto';
 import { AuthService } from '../../services/auth/auth.service';
 import { Response, Request } from 'express';
 import { User } from 'src/users/types';
@@ -31,7 +32,7 @@ export class AuthController {
       res.cookie('access_token', access_token, {
         httpOnly: true,
         secure: false,
-        sameSite: 'lax'
+        sameSite: 'lax' // change to lax for local testing and none for hosting
           }).send({ status: 'ok' , access_token, success: true});
     } catch (error) {
       {
@@ -73,5 +74,32 @@ export class AuthController {
      return {message: "Logged out"};
   }
 
-  
+  @Post('forgot-password')
+  @Public() 
+  @UsePipes(ValidationPipe)
+  @HttpCode(HttpStatus.OK)
+  async sendEmailLink(
+    @Res({ passthrough: true }) res: Response,
+    @Body() forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<void> {
+    try {
+      console.log(forgotPasswordDto)
+      const access_token = await this.authService.sendEmailLink(forgotPasswordDto);
+      res.send({status: 'ok', message: 'Password reset email sent successfully', access_token, success: true });
+    } catch (error) {
+      {
+        if (error instanceof NotFoundException) {
+          // Handle user not found exception
+          console.error('User not found');
+          res.status(HttpStatus.NOT_FOUND).send({ message: 'User not found', success: false });
+
+        } else {
+          // Handle other exceptions
+          console.error('Internal Server Error');
+          res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Internal Server Error', success: false });
+
+        }
+      }
+    }
+  }
 }

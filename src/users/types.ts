@@ -19,6 +19,17 @@ export type User = {
     id:number;
   }
 
+  export type NewPasswordParams = {
+    password: string;
+  }
+
+  export type PatchUserParams = {
+    password?: string;
+    username?: string;
+    admin?: boolean;
+    email?: string;
+  }
+  
   export type LoginUserParams = {
     email: string;
     password: string;

@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../../typeorm/';
 import { encodePassword } from 'src/utils/bcrypt';
-import { CreateUserParams, DeleteUserParams, } from '../../types';
+import { CreateUserParams, DeleteUserParams, PatchUserParams } from '../../types';
+
 // service class is responsible for all business logic
 // like calling APIs
 @Injectable()
@@ -66,5 +67,27 @@ export class UsersService {
       password: 'admin',
       admin: true,
     });
+  }
+
+  async patchUser(id, userDetails: PatchUserParams) {
+    const password = encodePassword(userDetails.password);
+    const userDB = await this.userRepository.findOneBy({ id });
+    if (!userDB) {
+      throw new NotFoundException ();
+    }
+    console.log("found user, changing password: ")
+    const patchedUser = this.userRepository.update(
+      id, {...userDetails, password}
+    );
+      console.log(patchedUser)
+    // import { UpdateResult } from 'typeorm';
+    // const updateResult: UpdateResult = await this.userRepository.update(id, userDetails);
+  //   if (updateResult.affected === 0) {
+  //     throw new NotFoundException('User not found for update');
+  // }
+    // const updatedUser = await this.userRepository.findOne(id);
+    // return updatedUser;
+
+    return patchedUser;
   }
 }
