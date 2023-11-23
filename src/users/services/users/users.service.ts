@@ -1,9 +1,17 @@
-import { Injectable, NotFoundException, ConflictException   } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { User } from '../../../typeorm/';
 import { encodePassword } from 'src/utils/bcrypt';
-import { CreateUserParams, DeleteUserParams, PatchUserParams } from '../../types';
+import {
+  CreateUserParams,
+  DeleteUserParams,
+  updateUserParams,
+} from '../../types';
 
 // service class is responsible for all business logic
 // like calling APIs
@@ -19,11 +27,12 @@ export class UsersService {
     const emailDB = await this.userRepository.findOneBy({ email });
 
     if (emailDB) {
-      throw new ConflictException ();
+      throw new ConflictException();
     }
 
     const newUser = this.userRepository.create({
-      ...userDetails, password, 
+      ...userDetails,
+      password,
     });
     const savedUser = await this.userRepository.save(newUser);
     return savedUser;
@@ -31,18 +40,26 @@ export class UsersService {
 
   async findUserByEmail(email: string) {
     const user = await this.userRepository.findOneBy({ email });
-    if (!user){
+    if (!user) {
       throw new NotFoundException('User not found');
     }
-    return user
+    return user;
   }
 
-  findUsers(){
+  async fetchUserById(id: number) {
+    const user = await this.userRepository.findOneBy({id});
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+  
+  findUsers() {
     return this.userRepository.find();
   }
 
-  async deleteUser(id : DeleteUserParams) {
-    const user = await this.userRepository.findOneBy( id );
+  async deleteUser(id: DeleteUserParams) {
+    const user = await this.userRepository.findOneBy(id);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -52,14 +69,16 @@ export class UsersService {
   }
 
   async createDefaultUser(): Promise<void> {
-    const defaultEmail = "admin@admin.com";
-    const existingAdmin = await this.userRepository.findOne({ where: { email: defaultEmail } });
-  
+    const defaultEmail = 'admin@admin.com';
+    const existingAdmin = await this.userRepository.findOne({
+      where: { email: defaultEmail },
+    });
+
     if (existingAdmin) {
       console.log('Admin user already exists.');
       return;
     }
-  
+
     // Create the admin user
     this.createUser({
       username: 'admin',
@@ -69,25 +88,38 @@ export class UsersService {
     });
   }
 
-  async patchUser(id, userDetails: PatchUserParams) {
-    const password = encodePassword(userDetails.password);
-    const userDB = await this.userRepository.findOneBy({ id });
-    if (!userDB) {
-      throw new NotFoundException ();
-    }
-    console.log("found user, changing password: ")
-    const patchedUser = this.userRepository.update(
-      id, {...userDetails, password}
-    );
-      console.log(patchedUser)
-    // import { UpdateResult } from 'typeorm';
-    // const updateResult: UpdateResult = await this.userRepository.update(id, userDetails);
-  //   if (updateResult.affected === 0) {
-  //     throw new NotFoundException('User not found for update');
-  // }
-    // const updatedUser = await this.userRepository.findOne(id);
-    // return updatedUser;
+  async resetPassword(id, newPassword: string): Promise<UpdateResult> {
+    const password = encodePassword(newPassword);
 
+    try {
+      const patchedUser = await this.userRepository.update(
+        { id },
+        { password },
+      );
+
+      console.log('Password changed successfully:', patchedUser);
+
+      return patchedUser;
+    } catch (error) {
+      console.error('Error changing password:', error.message);
+      throw error; // Rethrow the error to propagate it to the caller if needed
+    }
+  }
+
+  async updateUser(id, updateUserDetails: updateUserParams) {
+    const userDB = await this.userRepository.findOneBy({ id });
+
+    if (!userDB) {
+      throw new NotFoundException();
+    }
+
+    const userWithSameEmail = await this.userRepository.findOneBy({ email: updateUserDetails.email });
+    if (userWithSameEmail && userWithSameEmail.id !== id) {
+      // 'Email is already in use by another user.'
+      throw new ConflictException();
+  }
+    const patchedUser = await this.userRepository.update(id, updateUserDetails);
     return patchedUser;
   }
+
 }

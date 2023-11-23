@@ -13,12 +13,6 @@ export class CreateUserDto {
     @IsNotEmpty()
     email: string;
 
-    // @IsNumber()
-    // apicalls: number;
-
-    // @IsString()
-    // token: string;
-
-    // @IsBoolean()
-    // admin: boolean;
+    @IsBoolean()
+    admin?: boolean = false; // Making 'admin' optional with a default value of 'false'
 }

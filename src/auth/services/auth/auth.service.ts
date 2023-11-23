@@ -54,7 +54,8 @@ export class AuthService {
     if (userDB) {
       const payload = { id: userDB.id, email: userDB.email };
       const resetToken = await this.jwtService.signAsync(payload);
-      const baseUrl = 'http://localhost:5500/Client/HTML/reset_password.html';
+      // const baseUrl = 'https://comp4537.com/witty/client/HTML/reset-password.html';
+      const baseUrl = 'http://localhost:5500/Client/HTML/reset-password.html';
       const resetLink = `${baseUrl}?token=${resetToken}`;
       
       console.log(process.env.EMAIL_USER)

@@ -3,6 +3,9 @@ import {
   ConflictException,
   Get,
   Res,
+  Patch,
+  Param,
+  ParseIntPipe,
   Post,
   HttpCode,
   HttpStatus,
@@ -18,6 +21,7 @@ import { UsersService } from '../../services/users/users.service';
 import { Public } from 'src/auth/auth.guard';
 import { Response, Request } from 'express';
 import { DeleteUserDto } from 'src/users/dtos/DeleteUser.dto';
+import { UpdateUserDto } from 'src/users/dtos/UpdateUser.dto';
 import { User } from 'src/users/types';
 import { NewPasswordDto } from 'src/users/dtos/NewPassword.dto';
 
@@ -25,7 +29,7 @@ import { NewPasswordDto } from 'src/users/dtos/NewPassword.dto';
 // are for validating request bodies.
 @Controller('users')
 export class UsersController {
-  constructor(private userService: UsersService) { }
+  constructor(private userService: UsersService) {}
 
   @Get('getUsers')
   getUsers() {
@@ -71,12 +75,10 @@ export class UsersController {
     } catch (error) {
       if (error instanceof ConflictException) {
         console.error('User with this email already exists');
-        res
-          .status(HttpStatus.CONFLICT)
-          .send({
-            message: 'User with this email already exists',
-            status: false,
-          });
+        res.status(HttpStatus.CONFLICT).send({
+          message: 'User with this email already exists',
+          status: false,
+        });
       } else {
         console.error('Internal Server Error');
         res
@@ -115,36 +117,83 @@ export class UsersController {
   @Post('reset-password')
   @UsePipes(ValidationPipe)
   async updatePassword(
-    @Req() req: Request,  
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
     @Body() NewPasswordDto: NewPasswordDto,
   ): Promise<void> {
     try {
       const user = req.user as User;
-      const password  = NewPasswordDto.password
-      await this.userService.patchUser(user.id, NewPasswordDto);
+      const password = NewPasswordDto.password;
+      await this.userService.resetPassword(user.id, password);
 
-      res
-        .status(HttpStatus.OK)
-        .send({ status: 'ok', newpassword : password, message: 'Password updated successfully', success: true });
+      res.status(HttpStatus.OK).send({
+        status: 'ok',
+        newpassword: password,
+        message: 'Password updated successfully',
+        success: true,
+      });
     } catch (error) {
       if (error instanceof NotFoundException) {
         console.error('User does not exist');
-        res
-          .status(HttpStatus.NOT_FOUND)
-          .send({
-            message: 'User does not exist',
-            success: false,
-            status: 'error'
-          });
+        res.status(HttpStatus.NOT_FOUND).send({
+          message: 'User does not exist',
+          success: false,
+          status: 'error',
+        });
       } else {
         console.error('Internal Server Error');
-        res
-          .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .send({ message: 'Internal Server Error', success: false, status: 'error' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+          message: 'Internal Server Error',
+          success: false,
+          status: 'error',
+        });
       }
     }
   }
 
+  @Get(':id')
+  async getUserById(
+    @Param('id', ParseIntPipe) id: number,
+    @Res() res: Response,
+  ) {
+    try {
+      const user = await this.userService.fetchUserById(id);
 
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      console.log('user:');
+      console.log(user);
+      const {username, email, admin} = user
+
+      return res.status(HttpStatus.OK).json({username, email, admin});
+    } catch (error) {
+      // Handle different types of errors that may occur during the process
+      if (error instanceof NotFoundException) {
+        console.error('User not found');
+        return res.status(HttpStatus.NOT_FOUND).json({
+          message: 'User not found',
+          success: false,
+          status: 'error',
+        });
+      } else {
+        console.error('Internal Server Error');
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          message: 'Internal Server Error',
+          success: false,
+          status: 'error',
+        });
+      }
+    }
+  }
+
+  @Patch(':id')
+  async updateUserById(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    console.log(updateUserDto)
+    await this.userService.updateUser(id, updateUserDto);
+  }
 }

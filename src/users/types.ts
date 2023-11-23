@@ -23,8 +23,7 @@ export type User = {
     password: string;
   }
 
-  export type PatchUserParams = {
-    password?: string;
+  export type updateUserParams = {
     username?: string;
     admin?: boolean;
     email?: string;
