@@ -34,7 +34,6 @@ export class AuthGuard implements CanActivate {
 
     const headerToken = this.extractTokenFromHeader(request);
     if (headerToken) {
-      console.log(headerToken)
       return this.verifyAndSetUser(request, headerToken);
     }
 
@@ -67,10 +66,8 @@ export class AuthGuard implements CanActivate {
     console.log("extracting from cookie")
     const cookies = request.headers.cookie;
     if (cookies) {
-      console.log(cookies)
       const cookieArray = cookies.split(';').map(cookie => cookie.trim());
       const tokenCookie = cookieArray.find(cookie => cookie.startsWith('access_token='));
-      console.log(tokenCookie)
       if (tokenCookie) {
         return tokenCookie.split('=')[1];
       }

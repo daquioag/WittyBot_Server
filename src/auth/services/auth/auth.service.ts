@@ -49,8 +49,7 @@ export class AuthService {
   async sendEmailLink(userEmail: ForgotPasswordParams) {
     const { email } = userEmail;
     const userDB = await this.userService.findUserByEmail(email);
-    console.log(process.env.EMAIL_USER)
-    console.log(userDB)
+
     if (userDB) {
       const payload = { id: userDB.id, email: userDB.email };
       const resetToken = await this.jwtService.signAsync(payload);
@@ -58,8 +57,6 @@ export class AuthService {
       const baseUrl = 'http://localhost:5500/Client/HTML/reset-password.html';
       const resetLink = `${baseUrl}?token=${resetToken}`;
       
-      console.log(process.env.EMAIL_USER)
-
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {

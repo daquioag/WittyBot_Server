@@ -162,11 +162,7 @@ export class UsersController {
       if (!user) {
         throw new NotFoundException('User not found');
       }
-
-      console.log('user:');
-      console.log(user);
       const {username, email, admin} = user
-
       return res.status(HttpStatus.OK).json({username, email, admin});
     } catch (error) {
       // Handle different types of errors that may occur during the process

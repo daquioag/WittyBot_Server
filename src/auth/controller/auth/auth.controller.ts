@@ -83,7 +83,6 @@ export class AuthController {
     @Body() forgotPasswordDto: ForgotPasswordDto,
   ): Promise<void> {
     try {
-      console.log(forgotPasswordDto)
       const access_token = await this.authService.sendEmailLink(forgotPasswordDto);
       res.send({status: 'ok', message: 'Password reset email sent successfully', access_token, success: true });
     } catch (error) {
