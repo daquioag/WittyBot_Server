@@ -1,10 +1,12 @@
-import { Controller, Get, Res, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Get, Res, HttpStatus, HttpCode, Req } from '@nestjs/common';
 import { RequestService } from '../../services/request/request.service';
-import { Response } from 'express';
+import { Response, Request } from 'express';
+import { User } from 'src/users/types';
+import { UsersService } from 'src/users/services/users/users.service';
 
 @Controller('stats')
 export class RequestController {
-  constructor(private readonly requestService: RequestService) {}
+  constructor(private readonly requestService: RequestService, private readonly userService: UsersService) {}
 
   @Get('getStats')
   async getStats() {
@@ -18,14 +20,24 @@ export class RequestController {
 
   @Get('incrementFetchJoke')
   @HttpCode(HttpStatus.OK)
-  async incrementFetchJoke(@Res({ passthrough: true }) res: Response): Promise<void> {
+  async incrementFetchJoke(@Res() res: Response, @Req() req: Request): Promise<void> {
+    const user = req.user as User;
+
+    if (user) {
+      await this.userService.incrementApiCount(user.id);
+    }
     await this.requestService.incrementRequestCount('POST', '/getJoke');
     res.status(HttpStatus.OK).send({ message: 'API count incremented for getJoke!' });
 
   }
 
   @Get('incrementGetHealthTip')
-  async incrementGetHealthTip(@Res() res: Response): Promise<void> {
+  @HttpCode(HttpStatus.OK)
+  async incrementGetHealthTip(@Res() res: Response, @Req() req: Request): Promise<void> {
+    const user = req.user as User;
+    if (user) {
+      await this.userService.incrementApiCount(user.id);
+    }
     await this.requestService.incrementRequestCount('POST', '/getHealthTip');
     res.status(HttpStatus.OK).send({ message: 'API count incremented for GetHealthTip!' });
 
