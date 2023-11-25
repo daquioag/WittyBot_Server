@@ -14,7 +14,7 @@ export class RequestTracking {
   endpoint: string;
 
   @Column({ nullable: false, default: 0 })
-  requestCount: number;
+  request_count: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   last_served_at: Date;

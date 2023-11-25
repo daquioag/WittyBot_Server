@@ -15,6 +15,7 @@ import {
   NotFoundException,
   Delete,
   Req,
+  Inject
 } from '@nestjs/common';
 import { CreateUserDto } from '../../dtos/CreateUser.dto';
 import { UsersService } from '../../services/users/users.service';
@@ -24,23 +25,35 @@ import { DeleteUserDto } from 'src/users/dtos/DeleteUser.dto';
 import { UpdateUserDto } from 'src/users/dtos/UpdateUser.dto';
 import { User } from 'src/users/types';
 import { NewPasswordDto } from 'src/users/dtos/NewPassword.dto';
+import { RequestService } from 'src/request/services/request/request.service';
 
 // controllers are for extracing query parameters
 // are for validating request bodies.
 @Controller('users')
 export class UsersController {
-  constructor(private userService: UsersService) {}
+  constructor(
+    @Inject('REQUEST_SERVICE') private requestService: RequestService,
+    private userService: UsersService) {}
 
   @Get('getUsers')
-  getUsers() {
+   getUsers(@Req() request: Request) {
+    // Accessing method and endpoint (route)
+    const method = request.method;
+    const endpoint = request.route.path;
+    this.requestService.incrementRequestCount(method, endpoint);
     return this.userService.findUsers();
   }
 
   @Delete('delete')
   async deleteUser(
+    @Req() request: Request,
     @Res({ passthrough: true }) res: Response,
     @Body() DeleteUserDto: DeleteUserDto,
   ): Promise<void> {
+    const method = request.method;
+    const endpoint = request.route.path;
+    this.requestService.incrementRequestCount(method, endpoint);
+
     try {
       await this.userService.deleteUser(DeleteUserDto);
       res.status(HttpStatus.OK).send({ status: 'ok', success: true });
@@ -64,9 +77,13 @@ export class UsersController {
   @Public()
   @UsePipes(ValidationPipe)
   async createUser(
+    @Req() request: Request,
     @Res({ passthrough: true }) res: Response,
     @Body() CreateUserDto: CreateUserDto,
   ): Promise<void> {
+    const method = request.method;
+    const endpoint = request.route.path;
+    this.requestService.incrementRequestCount(method, endpoint);
     try {
       const user = await this.userService.createUser(CreateUserDto);
       res
@@ -94,6 +111,10 @@ export class UsersController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
+    
+    const method = req.method;
+    const endpoint = req.route.path;
+    this.requestService.incrementRequestCount(method, endpoint);
     try {
       const user = req.user as User;
       console.log(user.admin);

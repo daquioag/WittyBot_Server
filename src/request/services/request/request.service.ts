@@ -12,20 +12,29 @@ import {
 export class RequestService{  
     constructor(@InjectRepository(RequestTracking) private readonly requestRepository: Repository<RequestTracking>) {}
 
+xw
+    async getStats(): Promise<RequestTracking[]> {
+      return await this.requestRepository.find();
+    }
+
+
     async insertInitialData(): Promise<void> {
         const initialData = [
           { method: 'POST', endpoint: '/create', request_count: 0, description: 'Registers a new user' },
           { method: 'POST', endpoint: '/login', request_count: 0, description: 'Logs in a user' },
-          { method: 'POST', endpoint: 'users/create', request_count: 0, description: 'Creates a new user' },
-          { method: 'POST', endpoint: 'auth/forgot-password', request_count: 0, description: 'Initiates password reset' },
-          { method: 'POST', endpoint: 'users/reset-password', request_count: 0, description: 'Resets user password' },
+          { method: 'POST', endpoint: '/users/create', request_count: 0, description: 'Creates a new user' },
+          { method: 'POST', endpoint: '/auth/forgot-password', request_count: 0, description: 'Initiates password reset' },
+          { method: 'POST', endpoint: '/users/reset-password', request_count: 0, description: 'Resets user password' },
+          { method: 'POST', endpoint: '/getJoke', request_count: 0, description: 'Resets user password' },
+          { method: 'POST', endpoint: '/GetHealthTip', request_count: 0, description: 'Resets user password' },
+
           { method: 'GET', endpoint: '/logout', request_count: 0, description: 'Logs out a user' },
-          { method: 'GET', endpoint: 'users/getUsers', request_count: 0, description: 'Gets a list of users' },
-          { method: 'GET', endpoint: 'users/getRole', request_count: 0, description: 'Gets user roles' },
-          { method: 'GET', endpoint: 'users/:id', request_count: 0, description: 'Gets user details by ID' },
-          { method: 'GET', endpoint: 'users/getUsers', request_count: 0, description: 'Gets a list of users' },
-          { method: 'GET', endpoint: 'auth/profile', request_count: 0, description: 'Gets user profile' },
-          { method: 'GET', endpoint: 'report/getStats', request_count: 0, description: 'Deletes a user' },
+          { method: 'GET', endpoint: '/users/getUsers', request_count: 0, description: 'Gets a list of users' },
+          { method: 'GET', endpoint: '/users/getRole', request_count: 0, description: 'Gets user roles' },
+          { method: 'GET', endpoint: '/users/:id', request_count: 0, description: 'Gets user details by ID' },
+          { method: 'GET', endpoint: '/users/getUsers', request_count: 0, description: 'Gets a list of users' },
+          { method: 'GET', endpoint: '/auth/profile', request_count: 0, description: 'Gets user profile' },
+          { method: 'GET', endpoint: '/report/getStats', request_count: 0, description: 'Deletes a user' },
 
           { method: 'PATCH', endpoint: 'users/:id', request_count: 0, description: 'Updates user details by ID' },
           { method: 'DELETE', endpoint: 'users/delete', request_count: 0, description: 'Deletes a user' },
@@ -43,6 +52,19 @@ export class RequestService{
         }
       }
       
-      
+      async incrementRequestCount(method: string, endpoint: string): Promise<void> {
+        const existingRecord = await this.requestRepository.findOne({
+          where: { method, endpoint },
+        });
+        if (existingRecord) {
+          existingRecord.request_count += 1;
+          existingRecord.last_served_at = new Date(); // Update the lastServedAt to the current date and time
+          await this.requestRepository.save(existingRecord);
+        } else {
+          // If the record doesn't exist, you may want to handle this case accordingly.
+          console.log(`Record not found for method ${method} and endpoint ${endpoint}`);
+        }
+      }
+            
     }
 
