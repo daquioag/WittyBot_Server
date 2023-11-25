@@ -11,7 +11,6 @@ import { UsersService } from '../../../users/services/users/users.service';
 import { comparePasswords } from 'src/utils/bcrypt';
 import * as nodemailer from 'nodemailer';
 
-
 @Injectable()
 export class AuthService {
   constructor(

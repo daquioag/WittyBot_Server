@@ -15,7 +15,8 @@ import {
   NotFoundException,
   Delete,
   Req,
-  Inject
+  Inject,
+  
 } from '@nestjs/common';
 import { CreateUserDto } from '../../dtos/CreateUser.dto';
 import { UsersService } from '../../services/users/users.service';
@@ -36,23 +37,15 @@ export class UsersController {
     private userService: UsersService) {}
 
   @Get('getUsers')
-   getUsers(@Req() request: Request) {
-    // Accessing method and endpoint (route)
-    const method = request.method;
-    const endpoint = request.route.path;
-    this.requestService.incrementRequestCount(method, endpoint);
+   getUsers() {
     return this.userService.findUsers();
   }
 
   @Delete('delete')
   async deleteUser(
-    @Req() request: Request,
     @Res({ passthrough: true }) res: Response,
     @Body() DeleteUserDto: DeleteUserDto,
   ): Promise<void> {
-    const method = request.method;
-    const endpoint = request.route.path;
-    this.requestService.incrementRequestCount(method, endpoint);
 
     try {
       await this.userService.deleteUser(DeleteUserDto);
@@ -77,13 +70,9 @@ export class UsersController {
   @Public()
   @UsePipes(ValidationPipe)
   async createUser(
-    @Req() request: Request,
     @Res({ passthrough: true }) res: Response,
     @Body() CreateUserDto: CreateUserDto,
   ): Promise<void> {
-    const method = request.method;
-    const endpoint = request.route.path;
-    this.requestService.incrementRequestCount(method, endpoint);
     try {
       const user = await this.userService.createUser(CreateUserDto);
       res
@@ -111,10 +100,6 @@ export class UsersController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
-    
-    const method = req.method;
-    const endpoint = req.route.path;
-    this.requestService.incrementRequestCount(method, endpoint);
     try {
       const user = req.user as User;
       console.log(user.admin);

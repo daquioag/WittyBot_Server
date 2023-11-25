@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthController } from './controller/auth/auth.controller';
 import { AuthService } from './services/auth/auth.service';
 // import { UsersModule } from 'src/users/users.module';
@@ -11,9 +11,14 @@ import { APP_GUARD } from '@nestjs/core';
 import { UsersService } from 'src/users/services/users/users.service';
 import { PassportModule } from '@nestjs/passport/dist';
 import { JwtStrategy } from './utils/JwtStrategy';
+import { RequestService } from 'src/request/services/request/request.service';
+import { RequestTracking } from '../typeorm';
+import { RequestModule } from 'src/request/request.module';
+
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, RequestTracking]),
+    RequestModule,
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
@@ -35,7 +40,13 @@ import { JwtStrategy } from './utils/JwtStrategy';
       provide: 'USER_SERVICE',
       useClass: UsersService,
     },
-    AuthService, JwtStrategy
+    {
+      provide: 'REQUEST_SERVICE',
+      useClass: RequestService,
+    },
+    AuthService,
+    JwtStrategy,
+    RequestService,
   ],
 })
 export class AuthModule {}
