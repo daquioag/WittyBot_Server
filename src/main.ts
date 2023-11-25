@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import { UsersService } from './users/services/users/users.service';
+import { RequestService } from './request/services/request/request.service';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: {
     origin: ['http://localhost:5500', 
@@ -12,7 +13,10 @@ async function bootstrap() {
   app.use(cookieParser()); // cookie parser middleware
   
   const userService = app.get(UsersService);
+  const requestService = app.get(RequestService);
+
   await userService.createDefaultUser();
+  await requestService.insertInitialData();
 
   await app.listen(3000);
 

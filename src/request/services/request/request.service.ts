@@ -15,47 +15,34 @@ export class RequestService{
     async insertInitialData(): Promise<void> {
         const initialData = [
           { method: 'POST', endpoint: '/create', request_count: 0, description: 'Registers a new user' },
-          // ... (add other entries)
+          { method: 'POST', endpoint: '/login', request_count: 0, description: 'Logs in a user' },
+          { method: 'POST', endpoint: 'users/create', request_count: 0, description: 'Creates a new user' },
+          { method: 'POST', endpoint: 'auth/forgot-password', request_count: 0, description: 'Initiates password reset' },
+          { method: 'POST', endpoint: 'users/reset-password', request_count: 0, description: 'Resets user password' },
+          { method: 'GET', endpoint: '/logout', request_count: 0, description: 'Logs out a user' },
+          { method: 'GET', endpoint: 'users/getUsers', request_count: 0, description: 'Gets a list of users' },
+          { method: 'GET', endpoint: 'users/getRole', request_count: 0, description: 'Gets user roles' },
+          { method: 'GET', endpoint: 'users/:id', request_count: 0, description: 'Gets user details by ID' },
+          { method: 'GET', endpoint: 'users/getUsers', request_count: 0, description: 'Gets a list of users' },
+          { method: 'GET', endpoint: 'auth/profile', request_count: 0, description: 'Gets user profile' },
+          { method: 'GET', endpoint: 'report/getStats', request_count: 0, description: 'Deletes a user' },
+
+          { method: 'PATCH', endpoint: 'users/:id', request_count: 0, description: 'Updates user details by ID' },
+          { method: 'DELETE', endpoint: 'users/delete', request_count: 0, description: 'Deletes a user' },
+
         ];
-    
+      
         for (const data of initialData) {
-          await this.requestRepository.save(this.requestRepository.create(data));
+          const existingRecord = await this.requestRepository.findOne({
+            where: { method: data.method, endpoint: data.endpoint },
+          });
+      
+          if (!existingRecord) {
+            await this.requestRepository.save(this.requestRepository.create(data));
+          }
         }
       }
-
-
-      async createRequestTrackerWithParams(method: string, endpoint: string, requestCount: number, description: string): Promise<void> {
-        const existingTracker = await this.requestRepository.findOne({
-          where: { method, endpoint },
-        });
       
-        if (existingTracker) {
-          console.log('Request tracker with the specified method and endpoint already exists.');
-          return;
-        }
-      
-        // Create the request tracker
-        await this.requestRepository.save({ method, endpoint, requestCount, description });
-      }
-      
-      // Example usage:
-      async createDefaultRequestTracker(): Promise<void> {
-        const defaultMethod = 'POST';
-        const defaultEndpoint = '/login';
-      
-        // Check if the default request tracker already exists
-        const existingTracker = await this.requestRepository.findOne({
-          where: { method: defaultMethod, endpoint: defaultEndpoint },
-        });
-      
-        if (existingTracker) {
-          console.log('Request tracker already exists.');
-          return;
-        }
-      
-        // Create the default request tracker
-        await this.createRequestTrackerWithParams(defaultMethod, defaultEndpoint, 0, 'Logs in a user');
-      }
       
     }
 
