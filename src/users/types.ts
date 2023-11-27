@@ -3,7 +3,7 @@ export type User = {
     username: string;
     email: string;
     password: string;
-    apicalls: number;
+    apiCalls: number;
     token?: string;
     admin: boolean;
   };

@@ -126,7 +126,7 @@ export class UsersService {
     try {
       const user = await this.userRepository.findOneBy({ email });
       if (user) {
-        user.apicalls += 1; // Increment the API count
+        user.apiCalls += 1; // Increment the API count
         await this.userRepository.save(user);
       } else {
         console.error(strings.USER_NOT_FOUND_BY_EMAIL(email));

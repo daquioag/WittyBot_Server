@@ -31,7 +31,7 @@ export class AuthService {
           sub: userDB.id,
           email: userDB.email,
           username: userDB.username,
-          apiCalls: userDB.apicalls,
+          apiCalls: userDB.apiCalls,
           admin: userDB.admin,
         };
         const token = await this.jwtService.signAsync(payload);

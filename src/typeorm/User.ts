@@ -19,7 +19,7 @@ export class User {
   password: string;
 
   @Column({ default: 0 })
-  apicalls: number;
+  apiCalls: number;
 
   @Column({ nullable: true })
   token: string;

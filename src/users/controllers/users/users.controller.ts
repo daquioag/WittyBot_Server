@@ -94,21 +94,22 @@ export class UsersController {
       }
     }
   }
-
-  @Get('getRole')
+  
+  @Get('getInfo')
   @HttpCode(HttpStatus.OK)
-  async getUserRole(
+  async getUserInfo(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<void> {
+  ){
     try {
       const user = req.user as User;
-      console.log(user.admin);
-      res.status(HttpStatus.OK).send({
-        status: strings.Ok,
-        admin: user.admin,
-        success: true,
-      });
+      const userDB = await this.userService.findUserByEmail(user.email);
+      return {
+          status: strings.Ok,
+          admin: userDB.admin,
+          apiCalls: userDB.apiCalls,
+          success: true,
+      }
     } catch (error) {
       console.error(strings.ERROR_RETRIEVING_PROFILE, error);
 

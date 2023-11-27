@@ -17,8 +17,6 @@ export class RequestService{
 
     async insertInitialData(): Promise<void> {
       const initialData = [
-        { method: 'POST', endpoint: '/create', request_count: 0, description: 'Registers a new user' },
-        { method: 'POST', endpoint: '/login', request_count: 0, description: 'Logs in a user' },
         { method: 'POST', endpoint: '/users/create', request_count: 0, description: 'Creates a new user' },
         { method: 'POST', endpoint: '/auth/forgot-password', request_count: 0, description: 'Initiates password reset' },
         { method: 'POST', endpoint: '/users/reset-password', request_count: 0, description: 'Resets user password' },
@@ -27,9 +25,8 @@ export class RequestService{
         { method: 'POST', endpoint: '/auth/login', request_count: 0, description: 'Logs in a user' },
 
         { method: 'GET', endpoint: '/auth/logout', request_count: 0, description: 'Logs out a user' },
-        { method: 'GET', endpoint: '/logout', request_count: 0, description: 'Logs out a user' },
         { method: 'GET', endpoint: '/users/getUsers', request_count: 0, description: 'Gets a list of users' },
-        { method: 'GET', endpoint: '/users/getRole', request_count: 0, description: 'Gets user roles' },
+        { method: 'GET', endpoint: '/users/getInfo', request_count: 0, description: 'Gets user info' },
         { method: 'GET', endpoint: '/users/:id', request_count: 0, description: 'Gets user details by ID' },
         { method: 'GET', endpoint: '/auth/profile', request_count: 0, description: 'Gets user profile' },
         { method: 'GET', endpoint: '/stats/getStats', request_count: 0, description: 'Gets api call statistics' },
