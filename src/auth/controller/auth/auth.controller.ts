@@ -18,13 +18,27 @@ import { AuthService } from '../../services/auth/auth.service';
 import { Response, Request } from 'express';
 import { User } from 'src/users/types';
 import * as strings from '../../../utils/strings';
+import { ApiResponse, ApiTags, ApiBody, ApiOperation } from '@nestjs/swagger';
 
 // controllers are for extracing query parameters
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @ApiResponse({
+    status: 200,
+    description: 'User logged in successfully',
+    schema: {
+      example: {
+        status: 'ok',
+        success: true,
+      },
+    },
+  })
+  @ApiBody({ type: LoginUserDto })
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'login user by email and password' })
   @Post('login')
   @Public()
   @UsePipes(ValidationPipe)
@@ -58,13 +72,35 @@ export class AuthController {
     }
   }
 
-
+  @ApiResponse({
+    status: 200,
+    description: 'User profile retrieved successfully',
+    schema: {
+      example: {
+        username: 'john_doe',
+        email: 'john.doe@example.com',
+        apiCalls: 12,
+        admin: false,
+      },
+    },
+  })
   @Get('profile')
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'get user information by payload' })
   getProfile(@Req() req: Request) {
     return req.user;
   }
 
+  @ApiResponse({
+    status: 200,
+    description: 'User logged out successfully',
+    schema: {
+      example: {
+        message: 'Logged out successfully',
+      },
+    },
+  })
+  @ApiOperation({ summary: 'login user out' })
   @Get('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     if (req.user) {
@@ -76,10 +112,35 @@ export class AuthController {
      return {message: strings.LOGGED_OUT};
   }
 
+
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset email sent successfully',
+    schema: {
+      example: {
+        status: 'ok',
+        message: 'Password reset email sent successfully',
+        access_token: 'your_access_token_here',
+        success: true,
+      },
+    },
+  })
+  @ApiOperation({ summary: 'send password link by email' })
   @Post('forgot-password')
   @Public() 
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.OK)
+  @ApiResponse({
+    status: 200,
+    description: strings.PASSWORD_RESET_EMAIL_SENT,
+    schema: {
+      example: {
+        status: strings.Ok,
+        message: strings.PASSWORD_RESET_EMAIL_SENT,
+        success: true,
+      },
+    },
+  })
   async sendEmailLink(
     @Res({ passthrough: true }) res: Response,
     @Body() forgotPasswordDto: ForgotPasswordDto,

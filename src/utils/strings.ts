@@ -29,3 +29,10 @@ export const USER_NOT_FOUND_BY_EMAIL = (email: string) => `User with email ${ema
 export const ERROR_INCREMENTING_API_COUNT = (email: string) => `Error incrementing API count for user email ${email}:`;
 export const EXTRACTING_FROM_COOKIE = 'Extracting from cookie';
 export const EXTRACTING_FROM_HEADER = 'Extracting from header';
+
+
+
+// swager strings
+export const EXAMPLE_USERNAME = "new_user";
+export const EXAMPLE_PASSWORD = 'P@ssw0rd'
+export const EXAMPLE_EMAIL = 'new.user@example.com';
