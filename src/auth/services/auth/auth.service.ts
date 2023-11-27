@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../../../users/services/users/users.service';
 import { comparePasswords } from 'src/utils/bcrypt';
 import * as nodemailer from 'nodemailer';
+import * as strings from '../../../utils/strings';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,7 @@ export class AuthService {
     if (userDB) {
       const matched = comparePasswords(password, userDB.password);
       if (matched) {
-        console.log('USER FOUND!');
+        console.log(strings.USER_FOUND);
         const payload = {
           sub: userDB.id,
           email: userDB.email,
@@ -37,11 +38,11 @@ export class AuthService {
         
         return token;
       } else {
-        console.log('Wrong password!');
+        console.log(strings.WRONG_PASSWORD);
         throw new UnauthorizedException();
       }
     }
-    console.log('User not found!');
+    console.log(strings.USER_NOT_FOUND);
     throw new NotFoundException();
   }
 
@@ -73,15 +74,14 @@ export class AuthService {
       `,      };
 
       try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent:', info.response);
+        await transporter.sendMail(mailOptions);
         return resetToken; // Return the reset link
       } catch (error) {
-        console.error('Error sending email:', error);
-        throw new Error('Error sending email');
+        console.error(strings.EMAIL_SEND_ERROR, error);
+        throw new Error(strings.EMAIL_SEND_ERROR);
       }
     } else {
-      console.log('User not found!');
+      console.log(strings.USER_NOT_FOUND);
       throw new NotFoundException();
     }
   }

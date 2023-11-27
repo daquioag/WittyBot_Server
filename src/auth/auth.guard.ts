@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
+import * as strings from '../utils/strings';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
@@ -57,13 +58,13 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    console.log("extracting from header")
+    console.log(strings.EXTRACTING_FROM_HEADER)
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
 
   private extractTokenFromCookie(request: Request): string | undefined {
-    console.log("extracting from cookie")
+    console.log(strings.EXTRACTING_FROM_COOKIE)
     const cookies = request.headers.cookie;
     if (cookies) {
       const cookieArray = cookies.split(';').map(cookie => cookie.trim());

@@ -1,11 +1,10 @@
 import {
     Injectable,
-    NotFoundException,
-    ConflictException,
   } from '@nestjs/common';
   import { InjectRepository } from '@nestjs/typeorm';
   import { Repository } from 'typeorm';
   import { RequestTracking } from '../../../typeorm/';
+  import * as strings from '../../../utils/strings';
 
 @Injectable()
 export class RequestService{  
@@ -60,7 +59,8 @@ export class RequestService{
           await this.requestRepository.save(existingRecord);
         } else {
           // If the record doesn't exist, you may want to handle this case accordingly.
-          console.log(`Record not found for method ${method} and endpoint ${endpoint}`);
+          console.log(strings.RECORD_NOT_FOUND(method, endpoint));
+
         }
       }
             

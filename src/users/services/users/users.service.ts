@@ -12,6 +12,7 @@ import {
   DeleteUserParams,
   updateUserParams,
 } from '../../types';
+import * as strings from '../../../utils/strings';
 
 // service class is responsible for all business logic
 // like calling APIs
@@ -41,7 +42,7 @@ export class UsersService {
   async findUserByEmail(email: string) {
     const user = await this.userRepository.findOneBy({ email });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(strings.USER_NOT_FOUND);
     }
     return user;
   }
@@ -49,7 +50,7 @@ export class UsersService {
   async fetchUserById(id: number) {
     const user = await this.userRepository.findOneBy({id});
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(strings.USER_NOT_FOUND);
     }
     return user;
   }
@@ -62,28 +63,27 @@ export class UsersService {
     const user = await this.userRepository.findOneBy(id);
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(strings.USER_NOT_FOUND);
     }
 
     return this.userRepository.remove(user);
   }
 
   async createDefaultUser(): Promise<void> {
-    const defaultEmail = 'admin@admin.com';
+    const defaultEmail = strings.DEFAULT_ADMIN_EMAIL;
     const existingAdmin = await this.userRepository.findOne({
       where: { email: defaultEmail },
     });
 
     if (existingAdmin) {
-      console.log('Admin user already exists.');
       return;
     }
 
     // Create the admin user
     this.createUser({
-      username: 'admin',
+      username: strings.ADMIN,
       email: defaultEmail,
-      password: 'admin',
+      password: strings.ADMIN,
       admin: true,
     });
   }
@@ -97,11 +97,11 @@ export class UsersService {
         { password },
       );
 
-      console.log('Password changed successfully:', patchedUser);
+      console.log(strings.PASSWORD_UPDATED_SUCCESSFULLY, patchedUser);
 
       return patchedUser;
     } catch (error) {
-      console.error('Error changing password:', error.message);
+      console.error(strings.ERROR_CHANGING_PASSWORD, error.message);
       throw error; // Rethrow the error to propagate it to the caller if needed
     }
   }
@@ -130,10 +130,10 @@ export class UsersService {
         user.apicalls += 1; // Increment the API count
         await this.userRepository.save(user);
       } else {
-        console.error(`User with ID ${id} not found.`);
+        console.error(strings.USER_NOT_FOUND_BY_ID(id));
       }
     } catch (error) {
-      console.error(`Error incrementing API count for user ID ${id}:`, error.message);
+      console.error(strings.ERROR_INCREMENTING_API_COUNT(id), error.message);
     }
   }
 

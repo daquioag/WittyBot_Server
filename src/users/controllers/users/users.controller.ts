@@ -27,6 +27,7 @@ import { UpdateUserDto } from 'src/users/dtos/UpdateUser.dto';
 import { User } from 'src/users/types';
 import { NewPasswordDto } from 'src/users/dtos/NewPassword.dto';
 import { RequestService } from 'src/request/services/request/request.service';
+import * as strings from '../../../utils/strings';
 
 // controllers are for extracing query parameters
 // are for validating request bodies.
@@ -49,18 +50,18 @@ export class UsersController {
 
     try {
       await this.userService.deleteUser(DeleteUserDto);
-      res.status(HttpStatus.OK).send({ status: 'ok', success: true });
+      res.status(HttpStatus.OK).send({ status: strings.Ok, success: true });
     } catch (error) {
       if (error instanceof NotFoundException) {
-        console.error('User not found');
+        console.error(strings.USER_NOT_FOUND);
         res
           .status(HttpStatus.NOT_FOUND)
-          .send({ message: 'User not found', status: false });
+          .send({ message: strings.USER_NOT_FOUND, status: false });
       } else {
-        console.error('Internal Server Error:', error);
+        console.error(strings.INTERNAL_SERVER_ERROR, error);
         res
           .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .send({ message: 'Internal Server Error', status: false });
+          .send({ message: strings.INTERNAL_SERVER_ERROR, status: false });
       }
     }
   }
@@ -80,16 +81,16 @@ export class UsersController {
         .send({ status: 'ok', user, success: true });
     } catch (error) {
       if (error instanceof ConflictException) {
-        console.error('User with this email already exists');
+        console.error(strings.USER_ALREADY_EXISTS);
         res.status(HttpStatus.CONFLICT).send({
-          message: 'User with this email already exists',
+          message: strings.USER_ALREADY_EXISTS,
           status: false,
         });
       } else {
-        console.error('Internal Server Error');
+        console.error(strings.INTERNAL_SERVER_ERROR);
         res
           .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .send({ message: 'Internal Server Error', status: false });
+          .send({ message: strings.INTERNAL_SERVER_ERROR, status: false });
       }
     }
   }
@@ -104,16 +105,16 @@ export class UsersController {
       const user = req.user as User;
       console.log(user.admin);
       res.status(HttpStatus.OK).send({
-        status: 'ok',
+        status: strings.Ok,
         admin: user.admin,
         success: true,
       });
     } catch (error) {
-      console.error('Error retrieving user profile:', error);
+      console.error(strings.ERROR_RETRIEVING_PROFILE, error);
 
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
-        status: 'error',
-        message: 'Internal Server Error',
+        status: strings.GENERIC_ERROR,
+        message: strings.INTERNAL_SERVER_ERROR,
         success: false,
       });
     }
@@ -135,23 +136,23 @@ export class UsersController {
       res.status(HttpStatus.OK).send({
         status: 'ok',
         newpassword: password,
-        message: 'Password updated successfully',
+        message: strings.PASSWORD_UPDATED_SUCCESSFULLY,
         success: true,
       });
     } catch (error) {
       if (error instanceof NotFoundException) {
-        console.error('User does not exist');
+        console.error(strings.USER_DOES_NOT_EXIST);
         res.status(HttpStatus.NOT_FOUND).send({
-          message: 'User does not exist',
+          message: strings.USER_DOES_NOT_EXIST,
           success: false,
-          status: 'error',
+          status: strings.GENERIC_ERROR,
         });
       } else {
-        console.error('Internal Server Error');
+        console.error(strings.INTERNAL_SERVER_ERROR);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
-          message: 'Internal Server Error',
+          message: strings.INTERNAL_SERVER_ERROR,
           success: false,
-          status: 'error',
+          status: strings.GENERIC_ERROR,
         });
       }
     }
@@ -166,25 +167,25 @@ export class UsersController {
       const user = await this.userService.fetchUserById(id);
 
       if (!user) {
-        throw new NotFoundException('User not found');
+        throw new NotFoundException(strings.USER_NOT_FOUND);
       }
       const {username, email, admin} = user
       return res.status(HttpStatus.OK).json({username, email, admin});
     } catch (error) {
       // Handle different types of errors that may occur during the process
       if (error instanceof NotFoundException) {
-        console.error('User not found');
+        console.error(strings.USER_NOT_FOUND);
         return res.status(HttpStatus.NOT_FOUND).json({
-          message: 'User not found',
+          message: strings.USER_NOT_FOUND,
           success: false,
-          status: 'error',
+          status: strings.GENERIC_ERROR,
         });
       } else {
-        console.error('Internal Server Error');
+        console.error(strings.INTERNAL_SERVER_ERROR);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          message: 'Internal Server Error',
+          message: strings.INTERNAL_SERVER_ERROR,
           success: false,
-          status: 'error',
+          status: strings.GENERIC_ERROR,
         });
       }
     }
