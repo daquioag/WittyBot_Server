@@ -122,18 +122,17 @@ export class UsersService {
     return patchedUser;
   }
 
-  async incrementApiCount(id): Promise<void> {
+  async incrementApiCount(email): Promise<void> {
     try {
-      const user = await this.userRepository.findOneBy({ id });
-
+      const user = await this.userRepository.findOneBy({ email });
       if (user) {
         user.apicalls += 1; // Increment the API count
         await this.userRepository.save(user);
       } else {
-        console.error(strings.USER_NOT_FOUND_BY_ID(id));
+        console.error(strings.USER_NOT_FOUND_BY_EMAIL(email));
       }
     } catch (error) {
-      console.error(strings.ERROR_INCREMENTING_API_COUNT(id), error.message);
+      console.error(strings.ERROR_INCREMENTING_API_COUNT(email), error.message);
     }
   }
 

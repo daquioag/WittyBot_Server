@@ -22,9 +22,8 @@ export class RequestController {
   @HttpCode(HttpStatus.OK)
   async incrementFetchJoke(@Res() res: Response, @Req() req: Request): Promise<void> {
     const user = req.user as User;
-
     if (user) {
-      await this.userService.incrementApiCount(user.id);
+      await this.userService.incrementApiCount(user.email);
     }
     await this.requestService.incrementRequestCount('POST', '/getJoke');
     res.status(HttpStatus.OK).send({ message: 'API count incremented for getJoke!' });
@@ -36,10 +35,9 @@ export class RequestController {
   async incrementGetHealthTip(@Res() res: Response, @Req() req: Request): Promise<void> {
     const user = req.user as User;
     if (user) {
-      await this.userService.incrementApiCount(user.id);
+      await this.userService.incrementApiCount(user.email);
     }
     await this.requestService.incrementRequestCount('POST', '/getHealthTip');
     res.status(HttpStatus.OK).send({ message: 'API count incremented for GetHealthTip!' });
-
   }
 }
