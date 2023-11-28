@@ -4,7 +4,6 @@ export type User = {
     email: string;
     password: string;
     apiCalls: number;
-    token?: string;
     admin: boolean;
   };
 

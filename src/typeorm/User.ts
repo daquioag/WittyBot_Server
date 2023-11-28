@@ -21,9 +21,6 @@ export class User {
   @Column({ default: 0 })
   apiCalls: number;
 
-  @Column({ nullable: true })
-  token: string;
-
   @Column({ default: false })
   admin: boolean;
 }
