@@ -26,6 +26,14 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+### Project Links:
+- **Client (Frontend):** [Witty Client](https://comp4537.com/witty/client/HTML/login.html) *(Work in Progress)*
+- **Server (Backend):** [Nest Backend](https://nest.comp4537.com/)
+
+This repository serves as the TypeScript starter for the Nest framework. My primary responsibilities focused on creating and developing the backend infrastructure, which is accessible through [Nest Backend](https://nest.comp4537.com/). Please note that the client-side, [Witty Client](https://comp4537.com/witty/client/HTML/login.html), is currently a work in progress.
+
+Feel free to explore the project and reach out for any further information.
+
 ## Installation
 
 ```bash
